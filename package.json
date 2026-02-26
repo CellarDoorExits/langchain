@@ -48,12 +48,12 @@
     "cellar-door-exit": ">=0.1.0"
   },
   "devDependencies": {
-    "@langchain/core": "^0.2.36",
+    "@langchain/core": "^1.1.28",
     "cellar-door-entry": "^0.1.0",
     "cellar-door-exit": "^0.1.0",
     "tsup": "^8.0.0",
     "typescript": "^5.4.5",
-    "vitest": "^1.6.0",
+    "vitest": "^4.0.18",
     "zod": "^3.23.8"
   }
 }
