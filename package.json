@@ -1,6 +1,6 @@
 {
   "name": "@cellar-door/langchain",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "LangChain integration for cellar-door EXIT and ENTRY — verifiable agent departure and arrival markers",
   "type": "module",
   "main": "dist/index.cjs",
