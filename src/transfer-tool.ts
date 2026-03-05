@@ -22,7 +22,18 @@ export function createTransferVerificationTool() {
       "Verify a complete EXIT→ENTRY transfer chain: check both markers' signatures and continuity.",
     schema: transferSchema,
     func: async (input) => {
-      const exitMarker = fromJSON(input.exitMarkerJson);
+      let exitMarker;
+      try {
+        exitMarker = fromJSON(input.exitMarkerJson);
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return JSON.stringify({
+          verified: false,
+          transferTime: null,
+          errors: [`Exit marker parsing failed: ${message}`],
+          continuity: null,
+        });
+      }
       let arrivalMarker: any;
 
       // LC-04/S-05: Validate arrival marker input with size limits and structural checks

@@ -33,9 +33,26 @@ export function createAdmissionPolicyTool() {
       "Does not create an arrival — just checks the policy.",
     schema: admissionSchema,
     func: async (input) => {
-      const exitMarker = fromJSON(input.exitMarkerJson);
-      const result = evaluateAdmission(exitMarker, presets[input.policy]);
-      return JSON.stringify({ ...result, policy: input.policy });
+      try {
+        const exitMarker = fromJSON(input.exitMarkerJson);
+        const result = evaluateAdmission(exitMarker, presets[input.policy]);
+        return JSON.stringify({ ...result, policy: input.policy });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        // Distinguish parse/validation errors from unexpected failures
+        if (message.includes("Invalid JSON") || message.includes("Validation")) {
+          return JSON.stringify({
+            admitted: false,
+            error: `Marker parsing failed: ${message}`,
+            policy: input.policy,
+          });
+        }
+        return JSON.stringify({
+          admitted: false,
+          error: `Admission evaluation failed: ${message}`,
+          policy: input.policy,
+        });
+      }
     },
   });
 }

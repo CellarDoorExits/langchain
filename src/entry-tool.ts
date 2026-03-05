@@ -22,12 +22,20 @@ export function createEntryTool() {
       "Returns the signed arrival marker with continuity verification.",
     schema: entryToolSchema,
     func: async (input) => {
-      const result = quickEntry(input.exitMarkerJson, input.destination);
-      return JSON.stringify({
-        arrivalMarker: result.arrivalMarker,
-        exitMarkerId: result.exitMarker.id,
-        continuity: result.continuity,
-      });
+      try {
+        const result = quickEntry(input.exitMarkerJson, input.destination);
+        return JSON.stringify({
+          arrivalMarker: result.arrivalMarker,
+          exitMarkerId: result.exitMarker.id,
+          continuity: result.continuity,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : String(error);
+        return JSON.stringify({
+          error: `Entry verification failed: ${message}`,
+          arrivalMarker: null,
+        });
+      }
     },
   });
 }
