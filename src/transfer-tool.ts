@@ -4,7 +4,7 @@
 
 import { DynamicStructuredTool } from "@langchain/core/tools";
 import { z } from "zod";
-import { verifyTransfer } from "cellar-door-entry";
+import { verifyTransfer, validateArrivalMarker, MAX_MARKER_SIZE } from "cellar-door-entry";
 import { fromJSON } from "cellar-door-exit";
 
 const transferSchema = z.object({
@@ -24,6 +24,17 @@ export function createTransferVerificationTool() {
     func: async (input) => {
       const exitMarker = fromJSON(input.exitMarkerJson);
       let arrivalMarker: any;
+
+      // LC-04/S-05: Validate arrival marker input with size limits and structural checks
+      if (input.arrivalMarkerJson.length > MAX_MARKER_SIZE) {
+        return JSON.stringify({
+          verified: false,
+          transferTime: null,
+          errors: [`Arrival marker JSON too large: ${input.arrivalMarkerJson.length} bytes (max ${MAX_MARKER_SIZE})`],
+          continuity: null,
+        });
+      }
+
       try {
         arrivalMarker = JSON.parse(input.arrivalMarkerJson);
       } catch {
@@ -31,6 +42,16 @@ export function createTransferVerificationTool() {
           verified: false,
           transferTime: null,
           errors: ["Invalid arrival marker JSON: failed to parse"],
+          continuity: null,
+        });
+      }
+
+      const validation = validateArrivalMarker(arrivalMarker);
+      if (!validation.valid) {
+        return JSON.stringify({
+          verified: false,
+          transferTime: null,
+          errors: validation.errors.map((e: string) => `VALIDATION: ${e}`),
           continuity: null,
         });
       }
