@@ -59,7 +59,7 @@ export function createExitTool(opts?: ExitToolOpts) {
         emergencyJustification: input.emergencyJustification,
       };
 
-      const { marker } = quickExit(input.origin, quickOpts);
+      const { marker } = await quickExit(input.origin, quickOpts);
       return toJSON(marker);
     },
   });

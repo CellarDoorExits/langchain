@@ -83,8 +83,8 @@ export class ExitCallbackHandler extends BaseCallbackHandler {
     return result;
   }
 
-  private recordMarker(): ExitMarker {
-    const { marker } = quickExit(this.origin, { exitType: this.exitType });
+  private async recordMarker(): Promise<ExitMarker> {
+    const { marker } = await quickExit(this.origin, { exitType: this.exitType });
     this.markers.push(marker);
     // Evict oldest markers when limit exceeded
     while (this.markers.length > this.maxMarkers) {
@@ -95,19 +95,19 @@ export class ExitCallbackHandler extends BaseCallbackHandler {
   }
 
   async handleChainEnd(_outputs: ChainValues): Promise<void> {
-    const marker = this.recordMarker();
+    const marker = await this.recordMarker();
     // If arrivalDestination is set, also create arrival from exit
     if (this.arrivalDestination) {
       this.lastExitMarkerJson = toJSON(marker);
-      this.recordArrival(this.lastExitMarkerJson, this.arrivalDestination);
+      await this.recordArrival(this.lastExitMarkerJson, this.arrivalDestination);
     }
   }
 
   async handleAgentEnd(_action: AgentFinish): Promise<void> {
-    const marker = this.recordMarker();
+    const marker = await this.recordMarker();
     if (this.arrivalDestination) {
       this.lastExitMarkerJson = toJSON(marker);
-      this.recordArrival(this.lastExitMarkerJson, this.arrivalDestination);
+      await this.recordArrival(this.lastExitMarkerJson, this.arrivalDestination);
     }
   }
 
